@@ -1,0 +1,96 @@
+﻿@model ManufacturingERP.Entity.Models.Vendor
+
+@{
+    ViewData["Title"] = "Vendor Details";
+}
+
+<style>
+    .border-bold {
+        border: 2px solid #000 !important; /* Black bold border for inputs */
+        background-color: #f8f9fa; /* Optional: light background */
+        font-weight: bold !important; /* Make input text bold */
+        color: black !important;
+    }
+
+    /* Bold border for the entire card container */
+    .card-bold-border {
+        border: 3px solid #000 !important;
+    }
+
+        /* Make all labels, headings, and text inside card bold */
+        .card-bold-border label,
+        .card-bold-border h5,
+        .card-bold-border textarea,
+        .card-bold-border input,
+        .card-bold-border .form-label,
+        .card-bold-border .form-control {
+            font-weight: bold !important;
+            color: black !important;
+        }
+
+    /* Also make buttons text bold */
+    .btn {
+        font-weight: bold !important;
+    }
+</style>
+
+<h2 class="text-dark mb-4 fw-bold">@ViewData["Title"]</h2>
+
+<!-- Vendor Info Card with bold outer border -->
+<div class="card shadow-sm rounded-4 p-4 bg-light mb-4 card-bold-border">
+    <h5 class="text-primary mb-3">Vendor Information</h5>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label text-muted fw-bold">Vendor Name</label>
+            <input class="form-control border-bold" value="@Model.VendorName" readonly />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label text-muted fw-bold">Company Name</label>
+            <input class="form-control border-bold" value="@Model.CompanyName" readonly />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label text-muted fw-bold">Email</label>
+            <input class="form-control border-bold" value="@Model.Email" readonly />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label text-muted fw-bold">Phone Number</label>
+            <input class="form-control border-bold" value="@Model.PhoneNumber" readonly />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label class="form-label text-muted fw-bold">Address</label>
+            <textarea class="form-control border-bold" rows="2" readonly>@Model.Address</textarea>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label class="form-label text-muted fw-bold">Status</label>
+            <input class="form-control border-bold" value="@Model.Status" readonly />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label text-muted fw-bold">Created Date</label>
+            <input class="form-control border-bold" value="@Model.CreatedDate?.ToString("yyyy-MM-dd")" readonly />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label text-muted fw-bold">Modified Date</label>
+            <input class="form-control border-bold" value="@Model.ModifiedDate?.ToString("yyyy-MM-dd")" readonly />
+        </div>
+    </div>
+</div>
+
+<!-- Buttons -->
+<div class="d-flex justify-content-end gap-2">
+    <a asp-action="Edit" asp-route-id="@Model.VendorId" class="btn btn-primary">
+        <i class="bi bi-pencil-square"></i> Edit
+    </a>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left-circle"></i> Back to List
+    </a>
+</div>

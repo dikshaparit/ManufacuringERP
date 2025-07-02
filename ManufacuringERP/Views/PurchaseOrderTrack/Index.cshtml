@@ -1,0 +1,110 @@
+﻿@model IEnumerable<ManufacuringERP.Entity.Model.PurchaseOrderTrack>
+
+@{
+    ViewData["Title"] = "Purchase Order Track List";
+}
+
+<h2 class="mb-4 text-dark">📦 Purchase Order Tracking</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a asp-action="Create" class="btn btn-primary shadow-sm rounded-pill">
+        ➕ Add New Track
+    </a>
+    <input type="text" id="companySearch" class="form-control w-25" placeholder="Search by Company Name..." />
+</div>
+
+<div class="card shadow border-0">
+    <div class="card-body p-0">
+        <table class="table table-bordered align-middle text-center mb-0" style="border: 2px solid black;">
+            <thead class="table-dark">
+                <tr>
+                    <th>PO Code</th>
+                    <th>Vendor Company</th>
+                    <th>Order Date</th>
+                    <th>Expected Delivery</th>
+                    <th>PO Quantity</th>
+                    <th>GRN Received</th>
+                    <th>Balance</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="purchaseOrderTrackTableBody">
+                @foreach (var item in Model)
+                {
+                    <tr class="table-light transition" style="transition: background-color 0.3s;">
+                        <td class="fw-semibold">@item.POCode</td>
+                        <td>@item.Vendor?.CompanyName</td>
+                        <td>@item.OrderDate.ToShortDateString()</td>
+                        <td>@item.ExpectedDelivery.ToShortDateString()</td>
+                        <td>@item.PurchaseOrderQuantity</td>
+                        <td class="text-success fw-semibold">@item.GRNQuantity</td>
+                        <td class="text-danger fw-semibold">@item.Balance</td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a asp-action="Details" asp-route-id="@item.PurchaseOrderTrackId" title="Details">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+                                         viewBox="0 0 24 24" stroke="black" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M1.5 12s4-7.5 10.5-7.5S22.5 12 22.5 12s-4 7.5-10.5 7.5S1.5 12 1.5 12z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </a>
+
+                                <a asp-action="Delete" asp-route-id="@item.PurchaseOrderTrackId" title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+                                         viewBox="0 0 24 24" stroke="red" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M19 7L5 7M10 11V17M14 11V17M5 7L6 19A2 2 0 008 21H16A2 2 0 0018 19L19 7M9 7V4A1 1 0 0110 3H14A1 1 0 0115 4V7" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Custom CSS for Black Borders and Hover -->
+<style>
+    /* Bold black border for entire table, headers, and cells */
+    table th, table td {
+        border: 2px solid black !important;
+        font-weight: bold;
+    }
+
+    /* Header text color */
+    table thead th {
+        color: white !important;
+    }
+
+    /* Hover effect */
+    tr.table-light:hover {
+        background-color: #e9ecef !important;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.getElementById('companySearch').addEventListener('input', function () {
+            const query = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#purchaseOrderTrackTableBody tr');
+
+            rows.forEach(row => {
+                const companyNameCell = row.cells[1]; // 2nd column: Vendor Company
+                const companyName = companyNameCell ? companyNameCell.textContent.toLowerCase() : '';
+
+                if (companyName.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}

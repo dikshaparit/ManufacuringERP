@@ -1,0 +1,190 @@
+﻿@model ManufacturingERP.Entity.PurchaseOrder
+
+@{
+    ViewData["Title"] = "Edit Purchase Order";
+}
+
+<h2>Edit Purchase Order</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="PurchaseOrderId" />
+
+    <div class="form-group">
+        <label asp-for="VendorId" class="control-label">Vendor</label>
+        <select asp-for="VendorId" class="form-control" asp-items="@(new SelectList(ViewBag.Vendors, "Value", "Text", Model.VendorId))">
+            <option value="">-- Select Vendor --</option>
+        </select>
+        <span asp-validation-for="VendorId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="OrderDate" class="control-label"></label>
+        <input asp-for="OrderDate" class="form-control" type="date" />
+        <span asp-validation-for="OrderDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ExpectedDeliveryDate" class="control-label"></label>
+        <input asp-for="ExpectedDeliveryDate" class="form-control" type="date" />
+        <span asp-validation-for="ExpectedDeliveryDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Status" class="control-label">Status</label>
+        <select asp-for="Status" class="form-control">
+            <option value="">-- Select Status --</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <h4>Purchase Order Items</h4>
+    <table class="table" id="itemsTable">
+        <thead>
+            <tr>
+                <th>Material Type</th>
+                <th>Material Name</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Total Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.PurchaseOrderItems != null && Model.PurchaseOrderItems.Any())
+            {
+                var index = 0;
+                foreach (var item in Model.PurchaseOrderItems)
+                {
+                    <tr>
+                        <td>
+                            <select name="PurchaseOrderItems[@index].MaterialType" class="form-control">
+                                <option value="">-- Select Material Type --</option>
+                                <option value="Steel" selected="@(item.MaterialType == "Steel")">Steel</option>
+                                <option value="Plastic" selected="@(item.MaterialType == "Plastic")">Plastic</option>
+                                <option value="Fabric" selected="@(item.MaterialType == "Fabric")">Fabric</option>
+                                <option value="Wood" selected="@(item.MaterialType == "Wood")">Wood</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" name="PurchaseOrderItems[@index].MaterialName" value="@item.MaterialName" class="form-control" required />
+                        </td>
+                        <td>
+                            <input type="number" name="PurchaseOrderItems[@index].Quantity" value="@item.Quantity" class="form-control qty" required />
+                        </td>
+                        <td>
+                            <input type="text" name="PurchaseOrderItems[@index].Unit" value="@item.Unit" class="form-control" required />
+                        </td>
+                        <td>
+                            <input type="number" name="PurchaseOrderItems[@index].Price" value="@item.Price" class="form-control price" required />
+                        </td>
+                        <td>
+                            <input type="text" class="form-control totalPrice" value="@(item.Quantity * item.Price)" readonly />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger removeItem">Remove</button>
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+        </tbody>
+    </table>
+
+    <!-- Grand Total Row -->
+    <div class="form-group">
+        <label><strong>Grand Total:</strong></label>
+        <input type="text" id="grandTotal" class="form-control" readonly />
+    </div>
+
+    <button type="button" class="btn btn-primary" id="addItem">Add More Item</button>
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let itemIndex = @Model.PurchaseOrderItems?.Count() ?? 0;
+
+            function calculateTotal(row) {
+                const qty = parseFloat(row.find('.qty').val()) || 0;
+                const price = parseFloat(row.find('.price').val()) || 0;
+                const total = qty * price;
+                row.find('.totalPrice').val(total.toFixed(2));
+            }
+
+            function calculateGrandTotal() {
+                let grandTotal = 0;
+                $('.totalPrice').each(function () {
+                    const val = parseFloat($(this).val()) || 0;
+                    grandTotal += val;
+                });
+                $('#grandTotal').val(grandTotal.toFixed(2));
+            }
+
+            function addNewItem() {
+                let row = `<tr>
+                    <td>
+                        <select name="PurchaseOrderItems[${itemIndex}].MaterialType" class="form-control">
+                            <option value="">-- Select Material Type --</option>
+                            <option value="Steel">Steel</option>
+                            <option value="Plastic">Plastic</option>
+                            <option value="Fabric">Fabric</option>
+                            <option value="Wood">Wood</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" name="PurchaseOrderItems[${itemIndex}].MaterialName" class="form-control" required />
+                    </td>
+                    <td>
+                        <input type="number" name="PurchaseOrderItems[${itemIndex}].Quantity" class="form-control qty" required />
+                    </td>
+                    <td>
+                         <input type="text" name="PurchaseOrderItems[${itemIndex}].Unit" class="form-control" required />
+                     </td>
+
+                    <td>
+                        <input type="number" name="PurchaseOrderItems[${itemIndex}].Price" class="form-control price" required />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control totalPrice" readonly />
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger removeItem">Remove</button>
+                    </td>
+                </tr>`;
+
+                $("#itemsTable tbody").append(row);
+                itemIndex++;
+            }
+
+            // Initial Calculation
+            calculateGrandTotal();
+
+            // Add Item Button
+            $('#addItem').click(function () {
+                addNewItem();
+            });
+
+            // Event Delegation for dynamically added rows
+            $('#itemsTable').on('input', '.qty, .price', function () {
+                const row = $(this).closest('tr');
+                calculateTotal(row);
+                calculateGrandTotal();
+            });
+
+            // Remove Row
+            $('#itemsTable').on('click', '.removeItem', function () {
+                $(this).closest('tr').remove();
+                calculateGrandTotal();
+            });
+        });
+    </script>
+}

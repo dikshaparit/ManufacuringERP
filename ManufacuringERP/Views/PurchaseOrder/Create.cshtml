@@ -1,0 +1,152 @@
+﻿@model ManufacturingERP.Entity.PurchaseOrder
+
+@{
+    ViewData["Title"] = "Create Purchase Order";
+}
+
+<h2>Create Purchase Order</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="VendorId" class="control-label">Vendor</label>
+        <select asp-for="VendorId" class="form-control" asp-items="@(new SelectList(ViewBag.Vendors, "Value", "Text"))">
+            <option value="">-- Select Vendor --</option>
+        </select>
+        <span asp-validation-for="VendorId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="OrderDate" class="control-label"></label>
+        <input asp-for="OrderDate" class="form-control" type="date" />
+        <span asp-validation-for="OrderDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ExpectedDeliveryDate" class="control-label"></label>
+        <input asp-for="ExpectedDeliveryDate" class="form-control" type="date" />
+        <span asp-validation-for="ExpectedDeliveryDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Status" class="control-label">Status</label>
+        <select asp-for="Status" class="form-control">
+            <option value="">-- Select Status --</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <button type="button" class="btn btn-success mb-3" id="showItemsSection">Add Purchase Order Item</button>
+
+    <div id="purchaseOrderItemsSection" style="display: none; margin-top: 20px;">
+
+        ---------------------------------------------------------
+        <h4>Purchase Order Items</h4>
+        <table class="table" id="itemsTable">
+            <thead>
+                <tr>
+                    <th>Material Type</th>
+                    <th>MaterialName</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Price</th>
+                    <th>Total Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic Rows Go Here -->
+            </tbody>
+        </table>
+
+        <button type="button" class="btn btn-primary" id="addItem">Add More Item</button>
+    </div>
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+    <div class="form-group mt-3">
+        <label><strong>Grand Total:</strong></label>
+        <input type="text" id="grandTotal" class="form-control" readonly />
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let itemIndex = 0;
+
+            // Show the items section
+            $("#showItemsSection").click(function () {
+                $("#purchaseOrderItemsSection").slideDown();
+                $("#showItemsSection").hide();
+                addNewItem();
+            });
+
+            // Function to add a new item row
+            function addNewItem() {
+                let row = `<tr>
+                    <td>
+                        <select name="PurchaseOrderItems[${itemIndex}].MaterialType" class="form-control">
+                            <option value="">-- Select Material Type --</option>
+                            <option value="Steel">Steel</option>
+                            <option value="Plastic">Plastic</option>
+                            <option value="Fabric">Fabric</option>
+                            <option value="Wood">Wood</option>
+                        </select>
+                    </td>
+
+                    <td><input type="text" name="PurchaseOrderItems[${itemIndex}].MaterialName" class="form-control" placeholder="Enter Material Name" required /></td>
+
+                    <td><input type="number" name="PurchaseOrderItems[${itemIndex}].Quantity" class="form-control qty" min="0" required /></td>
+
+                    <td><input type="text" name="PurchaseOrderItems[${itemIndex}].Unit" class="form-control" placeholder="Enter Unit" required /></td>
+
+
+                    <td><input type="number" name="PurchaseOrderItems[${itemIndex}].Price" class="form-control price" min="0" required /></td>
+                    <td><input type="text" class="form-control totalPrice" readonly /></td>
+
+                    <td><button type="button" class="btn btn-danger removeItem">Remove</button></td>
+                </tr>`;
+
+                $("#itemsTable tbody").append(row);
+                itemIndex++;
+            }
+
+            // Add item button click
+            $("#addItem").click(function () {
+                addNewItem();
+            });
+
+            // Remove item
+            $(document).on('click', '.removeItem', function () {
+                $(this).closest('tr').remove();
+                updateGrandTotal(); // Update grand total when row is removed
+            });
+
+            // Auto calculate total price
+            $(document).on('input', '.qty, .price', function () {
+                const row = $(this).closest('tr');
+                const qty = parseFloat(row.find('.qty').val()) || 0;
+                const price = parseFloat(row.find('.price').val()) || 0;
+                const total = (qty * price).toFixed(2);
+                row.find('.totalPrice').val(total);
+
+                updateGrandTotal(); // Update grand total whenever price or qty changes
+            });
+
+            // Function to update Grand Total
+            function updateGrandTotal() {
+                let grandTotal = 0;
+                $('.totalPrice').each(function () {
+                    const total = parseFloat($(this).val()) || 0;
+                    grandTotal += total;
+                });
+                $('#grandTotal').val(grandTotal.toFixed(2));
+            }
+        });
+    </script>
+}

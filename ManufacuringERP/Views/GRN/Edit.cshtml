@@ -1,0 +1,99 @@
+﻿@model ManufacturingERP.Entity.GRN
+
+@{
+    ViewData["Title"] = "Edit GRN";
+    var purchaseOrders = ViewBag.PurchaseOrders as IEnumerable<SelectListItem>;
+}
+
+<h2>Edit GRN</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="GRNId" />
+
+    <div class="form-group">
+        <label asp-for="GRNCode"></label>
+        <input asp-for="GRNCode" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="POCode"></label>
+        <input asp-for="POCode" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="VendorId"></label>
+        <input asp-for="VendorId" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="GRNDate"></label>
+        <input asp-for="GRNDate" class="form-control" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-control">
+            <option value="Pending">Pending</option>
+            <option value="Received">Received</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+    </div>
+
+    <h4>GRN Items</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Material Type</th>
+                <th>Material Name</th>
+                <th>Unit</th>
+                <th>Quantity</th>
+                <th>Actual Quantity</th>
+                <th>Pending Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.GRNItems.Count(); i++)
+            {
+                <tr>
+                    <td>
+                        <input name="GRNItems[@i].MaterialType" value="@Model.GRNItems.ElementAt(i).MaterialType" class="form-control" readonly />
+                    </td>
+                    <td>
+                        <input name="GRNItems[@i].MaterialName" value="@Model.GRNItems.ElementAt(i).MaterialName" class="form-control" readonly />
+                    </td>
+                    <td>
+                        <input name="GRNItems[@i].Unit" value="@Model.GRNItems.ElementAt(i).Unit" class="form-control" readonly />
+                    </td>
+                    <td>
+                        <input name="GRNItems[@i].Quantity" value="@Model.GRNItems.ElementAt(i).Quantity" class="form-control" readonly />
+                    </td>
+                    <td>
+                        <input name="GRNItems[@i].ActualQuantity" value="@Model.GRNItems.ElementAt(i).ActualQuantity" class="form-control actual-qty" />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control pending-qty" readonly />
+                    </td>
+                    <input type="hidden" name="GRNItems[@i].PurchaseOrderItemId" value="@Model.GRNItems.ElementAt(i).PurchaseOrderItemId" />
+                    <input type="hidden" name="GRNItems[@i].GRNItemId" value="@Model.GRNItems.ElementAt(i).GRNItemId" />
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Update GRN</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.actual-qty').on('input', function () {
+                var row = $(this).closest('tr');
+                var qty = parseFloat(row.find('input[name$="Quantity"]').val()) || 0;
+                var actual = parseFloat($(this).val()) || 0;
+                row.find('.pending-qty').val((qty - actual).toFixed(2));
+            });
+            $('.actual-qty').trigger('input');
+        });
+    </script>
+}

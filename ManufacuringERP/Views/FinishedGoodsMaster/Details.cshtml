@@ -1,0 +1,105 @@
+﻿@model ManufacturingERP.Entity.FinishedGoodsMaster
+
+@{
+    ViewData["Title"] = "Finished Goods Details";
+}
+
+<!-- Custom CSS for bold black borders -->
+<style>
+    .table-bordered-black th,
+    .table-bordered-black td {
+        border: 2px solid #000 !important;
+    }
+
+    .table-bordered-black {
+        border: 2px solid #000 !important;
+    }
+
+        .table-bordered-black thead {
+            background-color: #f8f9fa;
+        }
+
+    .bold-border-box {
+        border: 2px solid #000 !important;
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    .bold-border-input {
+        border: 2px solid #000 !important;
+    }
+
+    .bold-border-label {
+        font-weight: bold;
+        color: #000;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 bold-border-box">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">📋 Finished Goods Details</h4>
+            <a asp-action="Index" class="btn btn-light btn-sm">Back to List</a>
+        </div>
+
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label bold-border-label">Finished Goods Code:</label>
+                    <input class="form-control bold-border-input" value="@Model.FinishedGoodsCode" readonly />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label bold-border-label">Finished Goods Name:</label>
+                    <input class="form-control bold-border-input" value="@Model.FinishedGoodsName" readonly />
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label bold-border-label">Status:</label>
+                    <input class="form-control bold-border-input" value="@Model.Status" readonly />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label bold-border-label">Created Date:</label>
+                    <input class="form-control bold-border-input" value="@Model.CreatedDate.ToString("yyyy-MM-dd")" readonly />
+                </div>
+            </div>
+
+            <hr />
+            <h5 class="fw-bold text-dark mb-3">📦 Finished Goods Items</h5>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle table-bordered-black">
+                    <thead class="text-center">
+                        <tr>
+                            <th class="fw-bold text-dark">Raw Material ID</th>
+                            <th class="fw-bold text-dark">Material Name</th>
+                            <th class="fw-bold text-dark">Planned Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @if (Model.FinishedGoodsItems != null && Model.FinishedGoodsItems.Any())
+                        {
+                            foreach (var item in Model.FinishedGoodsItems)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark">@item.RawMaterialId</td>
+                                    <td class="fw-bold text-dark">@item.MaterialName</td>
+                                    <td class="fw-bold text-dark">@item.PlannedQuantity</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center fw-bold text-muted">No Finished Goods Items found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

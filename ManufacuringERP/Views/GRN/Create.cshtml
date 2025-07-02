@@ -1,0 +1,110 @@
+﻿@model ManufacturingERP.Entity.GRN
+
+@{
+    ViewData["Title"] = "Create GRN";
+    var purchaseOrders = ViewBag.PurchaseOrders as IEnumerable<SelectListItem>;
+    var grnItems = Model.GRNItems.ToList(); // Convert to List for indexing
+}
+
+<h2>Create GRN</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="GRNCode"></label>
+        <input asp-for="GRNCode" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label>Purchase Order</label>
+        <select asp-for="PurchaseOrderId" asp-items="purchaseOrders" class="form-control" id="poDropdown">
+            <option value="">-- Select Purchase Order --</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="POCode"></label>
+        <input asp-for="POCode" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="VendorId"></label>
+        <input asp-for="VendorId" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="GRNDate"></label>
+        <input asp-for="GRNDate" class="form-control" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-control">
+            <option>Pending</option>
+            <option>Received</option>
+            <option>Cancelled</option>
+        </select>
+    </div>
+
+    <h4>GRN Items</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Material Type</th>
+                <th>Material Name</th>
+                <th>Unit</th>
+                <th>Quantity</th>
+                <th>Actual Quantity</th>
+                <th>Pending Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < grnItems.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <input name="GRNItems[@i].MaterialType" value="@grnItems[i].MaterialType" class="form-control" readonly />
+                    </td>
+                    <td>
+                        <input name="GRNItems[@i].MaterialName" value="@grnItems[i].MaterialName" class="form-control" readonly />
+                    </td>
+                    <td>
+                        <input name="GRNItems[@i].Unit" value="@grnItems[i].Unit" class="form-control" readonly />
+                    </td>
+                    <td>
+                        <input name="GRNItems[@i].Quantity" value="@grnItems[i].Quantity" class="form-control ordered-qty" readonly />
+                    </td>
+                    <td>
+                        <input name="GRNItems[@i].ActualQuantity" value="@grnItems[i].ActualQuantity" class="form-control actual-qty" />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control pending-qty" readonly />
+                    </td>
+                    <input type="hidden" name="GRNItems[@i].PurchaseOrderItemId" value="@grnItems[i].PurchaseOrderItemId" />
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Save GRN</button>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.actual-qty').on('input', function () {
+                var row = $(this).closest('tr');
+                var qty = parseFloat(row.find('.ordered-qty').val()) || 0;
+                var actual = parseFloat($(this).val()) || 0;
+                row.find('.pending-qty').val((qty - actual).toFixed(2));
+            });
+            $('.actual-qty').trigger('input');
+
+            $('#poDropdown').change(function () {
+                var id = $(this).val();
+                if (id) {
+                    window.location.href = '@Url.Action("Create", "GRN")?purchaseOrderId=' + id;
+                }
+            });
+        });
+    </script>
+}

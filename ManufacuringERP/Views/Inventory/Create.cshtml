@@ -1,0 +1,83 @@
+﻿@model ManufacuringERP.Entity.Model.Inventory
+
+@{
+    ViewData["Title"] = "Create Inventory";
+}
+
+<div class="container mt-5">
+    <div class="card shadow rounded-4">
+        <div class="card-header bg-dark text-white">
+            <h3 class="mb-0">Create Inventory</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create">
+                <!-- Material Name -->
+                <div class="form-group mb-3">
+                    <label asp-for="MaterialName" class="form-label fw-semibold"></label>
+                    <select asp-for="MaterialName" class="form-control">
+                        <option value="">-- Select Material --</option>
+                        <option value="Steel">Steel</option>
+                        <option value="Fabric">Fabric</option>
+                        <option value="Wood">Wood</option>
+                        <option value="Plastic">Plastic</option>
+                    </select>
+                    <span asp-validation-for="MaterialName" class="text-danger small"></span>
+                </div>
+
+                <!-- Quantity -->
+                <div class="form-group mb-3">
+                    <label asp-for="Quantity" class="form-label fw-semibold"></label>
+                    <input asp-for="Quantity" class="form-control" placeholder="Enter Quantity" />
+                    <span asp-validation-for="Quantity" class="text-danger small"></span>
+                </div>
+
+                <!-- Unit -->
+                <div class="form-group mb-3">
+                    <label asp-for="Unit" class="form-label fw-semibold"></label>
+                    <select asp-for="Unit" class="form-control">
+                        <option value="">-- Select Unit --</option>
+                        <option value="Kg">Kg</option>
+                        <option value="Meter">Meter</option>
+                        <option value="Unit">Unit</option>
+                        <option value="Piece">Piece</option>
+                    </select>
+                    <span asp-validation-for="Unit" class="text-danger small"></span>
+                </div>
+
+                <!-- Location -->
+                <div class="form-group mb-3">
+                    <label asp-for="Location" class="form-label fw-semibold"></label>
+                    <input asp-for="Location" class="form-control" placeholder="Enter Location" />
+                    <span asp-validation-for="Location" class="text-danger small"></span>
+                </div>
+
+                <!-- Status -->
+                <div class="form-group mb-4">
+                    <label asp-for="Status" class="form-label fw-semibold"></label>
+                    <select asp-for="Status" class="form-control">
+                        <option value="">-- Select Status --</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Available">Available</option>
+                        <option value="Reserved">Reserved</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger small"></span>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="form-group text-end">
+                    <button type="submit" class="btn btn-success me-2 px-4">
+                        <i class="fas fa-save me-1"></i>Create
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,35 @@
+﻿@model ManufacuringERP.Entity.Model.PurchaseOrderTrack
+
+@{
+    ViewData["Title"] = "Delete Purchase Order Track";
+}
+
+<h2>Delete Purchase Order Track</h2>
+
+<h4 class="text-danger">Are you sure you want to delete this record?</h4>
+
+<div class="card p-4 mt-3">
+    <dl class="row">
+        <dt class="col-sm-3">PO Code</dt>
+        <dd class="col-sm-9">@Model.POCode</dd>
+
+        <dt class="col-sm-3">Vendor ID</dt>
+        <dd class="col-sm-9">@Model.VendorId</dd>
+
+        <dt class="col-sm-3">Order Date</dt>
+        <dd class="col-sm-9">@Model.OrderDate.ToShortDateString()</dd>
+
+        <dt class="col-sm-3">Expected Delivery</dt>
+        <dd class="col-sm-9">@Model.ExpectedDelivery.ToShortDateString()</dd>
+
+        <dt class="col-sm-3">Price</dt>
+        <dd class="col-sm-9">@Model.PurchaseOrderTotalPrice</dd>
+    </dl>
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="PurchaseOrderTrackId" />
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+
+</div>

@@ -1,0 +1,120 @@
+﻿@model IEnumerable<ManufacturingERP.Entity.RawMaterial>
+
+<style>
+    /* Bold black border for table rows and cells */
+    table.table-bordered tbody tr,
+    table.table-bordered tbody tr td {
+        border: 2px solid black !important;
+        font-weight: bold !important;
+        color: black !important;
+    }
+
+    /* Optional: make the border a bit thicker and consistent */
+    table.table-bordered {
+        border-collapse: collapse !important;
+    }
+
+        /* Make the table header also consistent but keep default color and weight */
+        table.table-bordered thead th {
+            border: 2px solid black !important;
+            /* keep header text color white and weight normal */
+        }
+</style>
+
+<div class="container mt-4">
+    <div class="card shadow-sm rounded-3 position-relative">
+        <div class="card-body">
+            <h2 class="mb-4 fw-bold text-black">RawMaterial</h2>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <a asp-action="Create" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Add New RawMaterial
+                </a>
+
+                <input type="text" id="companySearch" class="form-control w-25" placeholder="Search by Company Name..." />
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>Raw Material ID</th> <!-- Added -->
+                            <th>Material Type</th>
+                            <th>Material Name</th>
+                            <th>Company Name</th>
+                            <th>Unit</th>
+                            <th style="width: 240px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rawMaterialTableBody">
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center">@item.RawMaterialId</td> <!-- Display RawMaterialId -->
+                                <td>
+                                    @foreach (var material in item.MaterialType.Split(","))
+                                    {
+                                        <span class="badge bg-light text-dark border me-1">@material.Trim()</span>
+                                    }
+                                </td>
+
+                                <td>@item.MaterialName</td>
+                                <td>@item.Vendor?.CompanyName</td>
+                                <td>@item.Unit</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                        <a asp-action="Edit" asp-route-id="@item.RawMaterialId" title="Edit">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+                                                 viewBox="0 0 24 24" stroke="orange" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
+                                            </svg>
+                                        </a>
+
+                                        <a asp-action="Details" asp-route-id="@item.RawMaterialId" title="Details">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+                                                 viewBox="0 0 24 24" stroke="black" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M1.5 12s4-7.5 10.5-7.5S22.5 12 22.5 12s-4 7.5-10.5 7.5S1.5 12 1.5 12z" />
+                                                <circle cx="12" cy="12" r="3" />
+                                            </svg>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.RawMaterialId" title="Delete">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+                                                 viewBox="0 0 24 24" stroke="red" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M19 7L5 7M10 11V17M14 11V17M5 7L6 19A2 2 0 008 21H16A2 2 0 0018 19L19 7M9 7V4A1 1 0 0110 3H14A1 1 0 0115 4V7" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('companySearch').addEventListener('input', function () {
+            const query = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#rawMaterialTableBody tr');
+
+            rows.forEach(row => {
+                // Company Name is the 3rd cell (index 2)
+                const companyNameCell = row.cells[2];
+                const companyName = companyNameCell ? companyNameCell.textContent.toLowerCase() : '';
+
+                if (companyName.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}

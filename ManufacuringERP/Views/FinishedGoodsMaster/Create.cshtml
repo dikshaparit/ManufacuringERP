@@ -1,0 +1,129 @@
+﻿@model ManufacturingERP.Entity.FinishedGoodsMaster
+
+@{
+    ViewData["Title"] = "Create Finished Goods";
+    var rawMaterials = ViewBag.RawMaterials as List<SelectListItem>;
+}
+
+<h2>Create Finished Goods Master</h2>
+
+<form asp-action="Create" method="post">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="FinishedGoodsCode" class="form-label"></label>
+            <input asp-for="FinishedGoodsCode" class="form-control" />
+            <span asp-validation-for="FinishedGoodsCode" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="FinishedGoodsName" class="form-label"></label>
+            <input asp-for="FinishedGoodsName" class="form-control" />
+            <span asp-validation-for="FinishedGoodsName" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="Status" class="form-label"></label>
+            <select asp-for="Status" class="form-control">
+                <option value="">-- Select Status --</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+    </div>
+
+    <hr />
+    <h4>Finished Goods Items</h4>
+
+    <table class="table table-bordered" id="itemTable">
+        <thead class="table-light">
+            <tr>
+                <th>Raw Material Id</th>
+                <th>Material Name</th>
+                <th>Planned Quantity</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="itemBody">
+            <!-- Dynamic rows go here -->
+        </tbody>
+    </table>
+
+    <button type="button" class="btn btn-primary mb-3" onclick="addItem()">Add Item</button>
+
+    <div>
+        <button type="submit" class="btn btn-success">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+
+</form>
+
+@section Scripts {
+    <script>
+        const rawMaterials = @Html.Raw(Json.Serialize(ViewBag.RawMaterials));
+
+        function addItem() {
+            const tbody = document.getElementById('itemBody');
+            const row = document.createElement('tr');
+
+            // RawMaterialId dropdown
+            const rawMaterialCell = document.createElement('td');
+            let rawMaterialSelect = `<select class="form-control" name="FinishedGoodsItems[Index].RawMaterialId" onchange="setMaterialName(this)" required>`;
+            rawMaterialSelect += `<option value="">-- Select --</option>`;
+            rawMaterials.forEach(rm => {
+                rawMaterialSelect += `<option value="${rm.value}">${rm.value}</option>`; // ONLY ID shown
+            });
+            rawMaterialSelect += `</select>`;
+            rawMaterialCell.innerHTML = rawMaterialSelect;
+
+            // MaterialName (auto-filled and read-only)
+            const materialNameCell = document.createElement('td');
+            materialNameCell.innerHTML = `<input name="FinishedGoodsItems[Index].MaterialName" type="text" class="form-control" readonly />`;
+
+            // PlannedQuantity
+            const plannedQtyCell = document.createElement('td');
+            plannedQtyCell.innerHTML = `<input name="FinishedGoodsItems[Index].PlannedQuantity" type="number" step="0.01" class="form-control" required />`;
+
+            // Action
+            const actionCell = document.createElement('td');
+            actionCell.innerHTML = `<button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>`;
+
+            row.appendChild(rawMaterialCell);
+            row.appendChild(materialNameCell);
+            row.appendChild(plannedQtyCell);
+            row.appendChild(actionCell);
+
+            tbody.appendChild(row);
+
+            updateIndexes();
+        }
+
+        function setMaterialName(selectElement) {
+            const selectedId = selectElement.value;
+            const row = selectElement.closest('tr');
+            const nameInput = row.querySelector('input[name*=".MaterialName"]');
+
+            const selectedMaterial = rawMaterials.find(rm => rm.value === selectedId);
+            nameInput.value = selectedMaterial ? selectedMaterial.text : '';
+        }
+
+        function removeItem(button) {
+            button.closest('tr').remove();
+            updateIndexes();
+        }
+
+        function updateIndexes() {
+            const rows = document.querySelectorAll('#itemBody tr');
+            rows.forEach((row, index) => {
+                row.querySelectorAll('input, select').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name) {
+                        input.setAttribute('name', name.replace('Index', index));
+                    }
+                });
+            });
+        }
+    </script>
+}

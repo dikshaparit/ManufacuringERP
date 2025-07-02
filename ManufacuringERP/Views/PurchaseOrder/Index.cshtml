@@ -1,0 +1,148 @@
+﻿@model IEnumerable<ManufacturingERP.Entity.PurchaseOrder>
+
+@{
+    ViewData["Title"] = "Purchase Orders";
+}
+
+<h2 class="mb-4 fw-bold text-black">Purchase Orders</h2>
+
+<!-- Flex container for Add button and search input (swapped positions) -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a asp-action="Create" class="btn btn-success shadow-sm rounded-pill px-4">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2" class="me-2 align-middle">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        Add New PurchaseOrder
+    </a>
+
+    <input type="text" id="companySearch" class="form-control w-25" placeholder="Search by Company Name..." />
+</div>
+
+<style>
+    /* Bold black borders for table and cells */
+    .table-bordered,
+    .table-bordered th,
+    .table-bordered td {
+        border: 3px solid black !important;
+    }
+
+    /* Keep header row with default Bootstrap dark styling */
+    thead.table-dark th {
+        /* No changes - keep white text on dark bg */
+    }
+
+    /* Bold black text for all tbody cells */
+    tbody tr td {
+        font-weight: bold !important;
+        color: black !important;
+    }
+
+    /* Borders on tbody rows and cells */
+    tbody tr,
+    tbody tr td {
+        border: 3px solid black !important;
+    }
+
+    /* Ensure borders collapse */
+    table {
+        border-collapse: collapse !important;
+    }
+</style>
+
+<div class="table-responsive shadow-sm rounded">
+    <table class="table table-bordered table-hover align-middle mb-0" id="purchaseOrderTable">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>PO Code</th>
+                <th>Company Name</th>
+                <th>Order Date</th>
+                <th>Expected Delivery</th>
+                <th>Total Price</th>
+                <th>Status</th>
+                <th style="width: 140px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="purchaseOrderTableBody">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-center fw-semibold">@item.POCode</td>
+                    <td>@item.Vendor.CompanyName</td>
+                    <td class="text-center">@item.OrderDate.ToShortDateString()</td>
+                    <td class="text-center">@item.ExpectedDeliveryDate.ToShortDateString()</td>
+                    <td class="text-end fw-semibold">@item.GrandTotal.ToString("C")</td>
+                    <td class="text-center">
+                        @if (item.Status == "Completed")
+                        {
+                            <span class="badge bg-success">@item.Status</span>
+                        }
+                        else if (item.Status == "Active")
+                        {
+                            <span class="badge bg-success">@item.Status</span>
+                        }
+                        else if (item.Status == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark">@item.Status</span>
+                        }
+                        else if (item.Status == "Cancelled")
+                        {
+                            <span class="badge bg-danger">@item.Status</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@item.Status</span>
+                        }
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group" aria-label="Actions">
+                            <a asp-action="Edit" asp-route-id="@item.PurchaseOrderId" class="btn btn-outline-warning btn-sm" title="Edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+                                     viewBox="0 0 24 24" stroke="orange" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
+                                </svg>
+                            </a>
+
+                            <a asp-action="Details" asp-route-id="@item.PurchaseOrderId" class="btn btn-outline-info btn-sm" title="Details">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+                                     viewBox="0 0 24 24" stroke="black" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M1.5 12s4-7.5 10.5-7.5S22.5 12 22.5 12s-4 7.5-10.5 7.5S1.5 12 1.5 12z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </a>
+
+                            <a asp-action="Delete" asp-route-id="@item.PurchaseOrderId" class="btn btn-outline-danger btn-sm" title="Delete">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+                                     viewBox="0 0 24 24" stroke="red" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M19 7L5 7M10 11V17M14 11V17M5 7L6 19A2 2 0 008 21H16A2 2 0 0018 19L19 7M9 7V4A1 1 0 0110 3H14A1 1 0 0115 4V7" />
+                                </svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('companySearch').addEventListener('input', function () {
+            const query = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#purchaseOrderTableBody tr');
+
+            rows.forEach(row => {
+                const companyNameCell = row.cells[1];
+                const companyName = companyNameCell ? companyNameCell.textContent.toLowerCase() : '';
+
+                if (companyName.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}

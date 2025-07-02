@@ -1,0 +1,178 @@
+﻿@model ManufacuringERP.Entity.Model.PurchaseOrderTrack
+
+@{
+    ViewData["Title"] = "Create Purchase Order Track";
+}
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+<div class="card shadow p-4 mb-4">
+    <form asp-action="Create" method="post">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="PurchaseOrderId" class="form-label">Purchase Order</label>
+                <select asp-for="PurchaseOrderId" class="form-select" asp-items="@ViewBag.PurchaseOrders" id="purchaseOrderDropdown">
+                    <option value="">-- Select PO Code --</option>
+                </select>
+            </div>
+            <input type="hidden" id="POCode" name="POCode" />
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Vendor ID</label>
+                <input type="text" id="VendorId" name="VendorId" class="form-control" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Order Date</label>
+                <input type="date" id="OrderDate" name="OrderDate" class="form-control" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Expected Delivery</label>
+                <input type="date" id="ExpectedDelivery" name="ExpectedDelivery" class="form-control" readonly />
+            </div>
+        </div>
+
+        <div class="card bg-light p-3 mb-4">
+            <h5 class="text-primary mb-3">Summary</h5>
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label for="PurchaseOrderQuantity" class="form-label">PO Quantity</label>
+                    <input type="number" step="0.01" class="form-control" id="PurchaseOrderQuantity" name="PurchaseOrderQuantity" readonly />
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label for="ActualQuantity" class="form-label">GRN Actual Quantity</label>
+                    <input type="number" step="0.01" class="form-control" id="ActualQuantity" name="ActualQuantity" readonly />
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label for="Balance" class="form-label">Balance</label>
+                    <input type="number" step="0.01" class="form-control" id="Balance" name="Balance" readonly />
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm p-3 mb-4">
+            <h5 class="text-primary mb-3">Track Items</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>GRN Code</th>
+                            <th>GRN Date</th>
+                            <th>Material Type</th>
+                            <th>Material Name</th>
+                            <th>Unit</th>
+                            <th>Original Quantity</th>
+                            <th>Quantity</th>
+                            <th>Actual Quantity</th>
+                            <th>Pending Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trackItemsBody">
+                        <!-- Populated dynamically via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-success px-4">Submit</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $('#purchaseOrderDropdown').change(function () {
+            var poId = $(this).val();
+            var poText = $('#purchaseOrderDropdown option:selected').text();
+
+            if (poId) {
+                $.ajax({
+                    url: '/PurchaseOrderTrack/GetPurchaseOrderDetails',
+                    type: 'GET',
+                    data: { purchaseOrderId: poId },
+                    success: function (data) {
+                        if (data) {
+                            $('#VendorId').val(data.vendorId);
+                            $('#OrderDate').val(data.orderDate.split('T')[0]);
+                            $('#ExpectedDelivery').val(data.expectedDelivery.split('T')[0]);
+                            $('#POCode').val(poText);
+                            $('#PurchaseOrderQuantity').val(data.quantity.toFixed(2));
+
+                            $.ajax({
+                                url: '/PurchaseOrderTrack/GetTrackItemsByPO',
+                                type: 'GET',
+                                data: { purchaseOrderId: poId },
+                                success: function (grnList) {
+                                    renderTrackItems(grnList);
+                                    calculateTotals();
+                                },
+                                error: function () {
+                                    alert("Error loading GRN items.");
+                                }
+                            });
+                        }
+                    },
+                    error: function () {
+                        alert("Error loading PO details.");
+                    }
+                });
+            } else {
+                $('#VendorId, #OrderDate, #ExpectedDelivery, #POCode, #PurchaseOrderQuantity, #ActualQuantity, #Balance').val('');
+                $('#trackItemsBody').empty();
+            }
+        });
+
+        function renderTrackItems(data) {
+            let tbody = $('#trackItemsBody');
+            tbody.empty();
+            let rowIndex = 0;
+
+            data.forEach(grn => {
+                const grnCode = grn.grnCode;
+                const grnDate = grn.grnDate.split('T')[0];
+
+                grn.items.forEach(item => {
+                    const pendingQty = item.quantity - item.actualQuantity;
+
+                    const row = `
+                        <tr>
+                            <td><input name="PurchaseOrderTrackItems[${rowIndex}].GRNCode" class="form-control" value="${grnCode}" readonly /></td>
+                            <td><input name="PurchaseOrderTrackItems[${rowIndex}].GRNDate" class="form-control" type="date" value="${grnDate}" readonly /></td>
+                            <td><input name="PurchaseOrderTrackItems[${rowIndex}].MaterialType" class="form-control" value="${item.materialType}" readonly /></td>
+                            <td><input name="PurchaseOrderTrackItems[${rowIndex}].MaterialName" class="form-control" value="${item.materialName}" readonly /></td>
+                            <td><input name="PurchaseOrderTrackItems[${rowIndex}].Unit" class="form-control" value="${item.unit}" readonly /></td>
+                            <td><input name="PurchaseOrderTrackItems[${rowIndex}].OriginalQuantity" class="form-control" value="${item.originalQuantity}" readonly /></td>
+                            <td><input name="PurchaseOrderTrackItems[${rowIndex}].Quantity" class="form-control" value="${item.quantity}" /></td>
+                            <td><input name="PurchaseOrderTrackItems[${rowIndex}].ActualQuantity" class="form-control actual-qty" value="${item.actualQuantity}" /></td>
+                            <td><input class="form-control" value="${pendingQty}" readonly /></td>
+                            <input type="hidden" name="PurchaseOrderTrackItems[${rowIndex}].GRNId" value="${item.grnId}" />
+                        </tr>`;
+                    tbody.append(row);
+                    rowIndex++;
+                });
+            });
+
+            $('#trackItemsBody').on('input', '.actual-qty', function () {
+                calculateTotals();
+            });
+        }
+
+        function calculateTotals() {
+            let grnQuantity = 0;
+            $('.actual-qty').each(function () {
+                grnQuantity += parseFloat($(this).val()) || 0;
+            });
+
+            $('#ActualQuantity').val(grnQuantity.toFixed(2));
+
+            const poQty = parseFloat($('#PurchaseOrderQuantity').val()) || 0;
+            const balance = poQty - grnQuantity;
+
+            $('#Balance').val(balance.toFixed(2));
+        }
+    </script>
+}

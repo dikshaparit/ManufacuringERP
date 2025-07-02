@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Manufacturing ERP</h1>
+    <p>Manage Raw Materials, Suppliers, and Purchase Orders efficiently.</p>
+
+    <div class="mt-4">
+        <a class="btn btn-primary" asp-controller="RawMaterial" asp-action="Index">Manage Raw Materials</a>
+        <a class="btn btn-success" asp-controller="Supplier" asp-action="Index">Manage Suppliers</a>
+        <a class="btn btn-success" asp-controller="PurchaseOrder" asp-action="Index">Manage PurchaseOrder</a>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+﻿@model ManufacturingERP.Entity.ProductionPlan
+
+@{
+    ViewData["Title"] = "Production Plan Details";
+}
+
+<h2>Production Plan Details</h2>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <dl class="row">
+
+            <dt class="col-sm-4">Production Date</dt>
+            <dd class="col-sm-8">@Model.ProductionDate.ToString("yyyy-MM-dd")</dd>
+
+            <dt class="col-sm-4">Shift</dt>
+            <dd class="col-sm-8">@Model.Shift</dd>
+
+            <dt class="col-sm-4">Finished Goods</dt>
+            <dd class="col-sm-8">@Model.FinishedGoodsMaster?.FinishedGoodsName</dd>
+
+            <dt class="col-sm-4">Planned Quantity</dt>
+            <dd class="col-sm-8">@Model.PlannedQuantity</dd>
+
+            <dt class="col-sm-4">Status</dt>
+            <dd class="col-sm-8">
+                <span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary")">
+                    @(Model.IsActive ? "Active" : "Inactive")
+                </span>
+            </dd>
+        </dl>
+
+        <a asp-action="Edit" asp-route-id="@Model.ProductionPlanId" class="btn btn-primary">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

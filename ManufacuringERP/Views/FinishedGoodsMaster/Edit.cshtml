@@ -1,0 +1,146 @@
+﻿@model ManufacturingERP.Entity.FinishedGoodsMaster
+
+@{
+    ViewData["Title"] = "Edit Finished Goods";
+}
+
+<h2>Edit Finished Goods</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="FinishedGoodsMasterId" />
+
+    <div class="mb-3">
+        <label asp-for="FinishedGoodsCode" class="form-label"></label>
+        <input asp-for="FinishedGoodsCode" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FinishedGoodsName" class="form-label"></label>
+        <input asp-for="FinishedGoodsName" class="form-control" />
+        <span asp-validation-for="FinishedGoodsName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" class="form-control">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <h4>Finished Goods Items</h4>
+
+    <table class="table table-bordered" id="itemsTable">
+        <thead>
+            <tr>
+                <th>Raw Material</th>
+                <th>Material Name</th>
+                <th>Planned Quantity</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="itemsBody">
+            @if (Model.FinishedGoodsItems != null && Model.FinishedGoodsItems.Any())
+            {
+               @for (int i = 0; i < Model.FinishedGoodsItems.Count; i++)
+            {
+                var item = Model.FinishedGoodsItems.ElementAt(i);
+                <tr>
+                    <td>
+                            <select name="FinishedGoodsItems[@i].RawMaterialId" class="form-control" required>
+                                <option value="">-- Select Raw Material --</option>
+                                @foreach (var rm in (IEnumerable<SelectListItem>)ViewBag.RawMaterials)
+                                {
+                                    if (rm.Value == item.RawMaterialId.ToString())
+                                    {
+                                        <option value="@rm.Value" selected>@rm.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@rm.Value">@rm.Text</option>
+                                    }
+                                }
+                            </select>
+
+            <input type="hidden" name="FinishedGoodsItems[@i].FinishedGoodsItemId" value="@item.FinishedGoodsItemId" />
+        </td>
+        <td>
+            <input name="FinishedGoodsItems[@i].MaterialName" class="form-control" value="@item.MaterialName" required />
+        </td>
+        <td>
+            <input name="FinishedGoodsItems[@i].PlannedQuantity" type="number" step="0.01" class="form-control" value="@item.PlannedQuantity" required />
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+        </td>
+    </tr>
+}
+
+            }
+        </tbody>
+    </table>
+
+    <button type="button" class="btn btn-primary mb-3" onclick="addItem()">Add Item</button>
+
+    <div>
+        <button type="submit" class="btn btn-success">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        // RawMaterials list from ViewBag, expected as List<SelectListItem>
+        const rawMaterials = @Html.Raw(Json.Serialize(ViewBag.RawMaterials ?? new List<object>()));
+
+        function addItem() {
+            const tbody = document.getElementById('itemsBody');
+            const rowCount = tbody.rows.length;
+
+            let rawMaterialOptions = '<option value="">-- Select Raw Material --</option>';
+            rawMaterials.forEach(rm => {
+                rawMaterialOptions += `<option value="${rm.value}">${rm.text}</option>`;
+            });
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <select name="FinishedGoodsItems[${rowCount}].RawMaterialId" class="form-control rawMaterialSelect" required>
+                        ${rawMaterialOptions}
+                    </select>
+                    <input type="hidden" name="FinishedGoodsItems[${rowCount}].FinishedGoodsItemId" value="0" />
+                </td>
+                <td>
+                    <input name="FinishedGoodsItems[${rowCount}].MaterialName" class="form-control" required />
+                </td>
+                <td>
+                    <input name="FinishedGoodsItems[${rowCount}].PlannedQuantity" type="number" step="0.01" class="form-control" required />
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        }
+
+        function removeItem(button) {
+            const row = button.closest('tr');
+            row.remove();
+            updateIndexes();
+        }
+
+        function updateIndexes() {
+            const rows = document.querySelectorAll('#itemsBody tr');
+            rows.forEach((row, index) => {
+                row.querySelectorAll('input, select').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name) {
+                        input.setAttribute('name', name.replace(/\[\d+\]/, `[${index}]`));
+                    }
+                });
+            });
+        }
+    </script>
+}

@@ -1,0 +1,131 @@
+﻿@model ManufacturingERP.Entity.ProductionPlan
+
+@{
+    ViewData["Title"] = "Edit Production Plan";
+}
+
+<h2>Edit Production Plan</h2>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="ProductionPlanId" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Production Date -->
+            <div class="form-group mb-3">
+                <label asp-for="ProductionDate" class="form-label">Production Date</label>
+                <input asp-for="ProductionDate" class="form-control" type="date" />
+                <span asp-validation-for="ProductionDate" class="text-danger"></span>
+            </div>
+
+            <!-- Shift Dropdown -->
+            <div class="form-group mb-3">
+                <label asp-for="Shift" class="form-label">Shift</label>
+                <select asp-for="Shift" class="form-control">
+                    <option value="">-- Select Shift --</option>
+                    <option value="Morning" selected="@(Model.Shift == "Morning" ? "selected" : null)">Morning</option>
+                    <option value="Evening" selected="@(Model.Shift == "Evening" ? "selected" : null)">Evening</option>
+                    <option value="Night" selected="@(Model.Shift == "Night" ? "selected" : null)">Night</option>
+                </select>
+                <span asp-validation-for="Shift" class="text-danger"></span>
+            </div>
+
+            <!-- Finished Goods Dropdown -->
+            <div class="form-group mb-3">
+                <label asp-for="FinishedGoodsMasterId" class="form-label">Finished Goods Name</label>
+                <select asp-for="FinishedGoodsMasterId" class="form-control" asp-items="ViewBag.FinishedGoodsList">
+                    <option value="">-- Select Finished Goods --</option>
+                </select>
+                <span asp-validation-for="FinishedGoodsMasterId" class="text-danger"></span>
+            </div>
+
+            <!-- Planned Quantity -->
+            <div class="form-group mb-3">
+                <label asp-for="PlannedQuantity" class="form-label">Planned Quantity</label>
+                <input asp-for="PlannedQuantity" class="form-control" type="number" min="1" />
+                <span asp-validation-for="PlannedQuantity" class="text-danger"></span>
+            </div>
+
+            <!-- Switch Button for Active/Inactive -->
+            <div class="form-group mb-3">
+                <label class="form-label">Status</label><br />
+                <label class="switch">
+                    <input type="checkbox" asp-for="IsActive" id="IsActive" />
+                    <span class="slider round"></span>
+                </label>
+                <span id="statusLabel" class="ms-2 fw-bold">
+                    @(Model.IsActive ? "Active" : "Inactive")
+                </span>
+            </div>
+
+            <!-- Submit -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">Save Changes</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 25px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 19px;
+        width: 19px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #28a745;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+</style>
+
+<script>
+    const checkbox = document.getElementById("IsActive");
+    const label = document.getElementById("statusLabel");
+
+    checkbox.addEventListener("change", function () {
+        label.textContent = this.checked ? "Active" : "Inactive";
+    });
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

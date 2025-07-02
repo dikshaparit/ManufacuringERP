@@ -1,0 +1,133 @@
+﻿@model ManufacuringERP.Entity.Model.PurchaseOrderTrack
+
+@{
+    ViewData["Title"] = "Purchase Order Track Details";
+}
+
+<div class="outer-box p-4 mb-5">
+    <h2 class="mb-4" style="color: black; font-weight: bold;">@ViewData["Title"]</h2>
+
+    <!-- Summary Card -->
+    <div class="card bg-light shadow-sm rounded-4 p-4 mb-5">
+        <h5 class="section-heading">Summary</h5>
+        <div class="row gy-3">
+            <div class="col-md-4">
+                <label class="form-label label-black">PO Code</label>
+                <input class="form-control border-black" value="@Model.POCode" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label label-black">Vendor Company</label>
+                <input class="form-control border-black" value="@Model.Vendor?.CompanyName" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label label-black">Order Date</label>
+                <input class="form-control border-black" value="@Model.OrderDate.ToShortDateString()" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label label-black">Expected Delivery</label>
+                <input class="form-control border-black" value="@Model.ExpectedDelivery.ToShortDateString()" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label label-black">Purchase Order Quantity</label>
+                <input class="form-control border-black" value="@Model.PurchaseOrderQuantity.ToString("0.00")" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label label-black">GRN Quantity (Received)</label>
+                <input class="form-control border-black" value="@Model.GRNQuantity.ToString("0.00")" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label label-black">Remaining Balance</label>
+                <input class="form-control border-black text-danger" value="@Model.Balance.ToString("0.00")" readonly />
+            </div>
+        </div>
+    </div>
+
+    <!-- Track Items Table -->
+    @if (Model.PurchaseOrderTrackItems != null && Model.PurchaseOrderTrackItems.Any())
+    {
+        <div class="card shadow-lg rounded-4 p-4">
+            <h5 class="section-heading">GRN Items</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle shadow-sm bg-white" style="border: 2px solid black;">
+                    <thead class="custom-thead text-center">
+                        <tr>
+                            <th>GRN Code</th>
+                            <th>GRN Date</th>
+                            <th>Material Type</th>
+                            <th>Material Name</th>
+                            <th>Unit</th>
+                            <th>Original Quantity</th>
+                            <th>PO Quantity</th>
+                            <th>Actual Quantity</th>
+                            <th>Pending Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach (var item in Model.PurchaseOrderTrackItems)
+                        {
+                            var pendingQty = item.Quantity - item.ActualQuantity;
+                            <tr>
+                                <td>@item.GRNCode</td>
+                                <td>@item.GRNDate</td>
+                                <td>@item.MaterialType</td>
+                                <td>@item.MaterialName</td>
+                                <td>@item.Unit</td>
+                                <td>@item.OriginalQuantity</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.ActualQuantity</td>
+                                <td class="text-danger fw-bold">@pendingQty.ToString("0.00")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Styles for Bold Black UI -->
+<style>
+    .outer-box {
+        border: 3px solid black;
+        border-radius: 12px;
+        background-color: #f8f9fa;
+    }
+
+    .form-control {
+        border: 2px solid black !important;
+        color: black !important;
+        font-weight: bold !important;
+    }
+
+    .border-black {
+        border: 2px solid black !important;
+        color: black !important;
+        font-weight: bold !important;
+    }
+
+    .label-black {
+        color: black !important;
+        font-weight: bold !important;
+    }
+
+    table th,
+    table td {
+        border: 2px solid black !important;
+        font-weight: bold !important;
+    }
+
+    .custom-thead th {
+        background-color: #343a40; /* Dark gray */
+        color: white !important; /* White text */
+    }
+
+    .text-danger {
+        color: red !important;
+        font-weight: bold !important;
+    }
+
+    .section-heading {
+        color: #0d6efd !important; /* Bootstrap blue */
+        font-weight: bold;
+    }
+</style>
